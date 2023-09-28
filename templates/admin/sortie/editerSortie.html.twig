@@ -1,0 +1,198 @@
+{% extends ['base.html.twig'] %}
+
+{% block title %}Sortie.com!{% endblock %}
+
+{% block body %}
+    <section class="container-fluid">
+
+    {{ form_start(form) }}
+    <div class="row">
+        <div class="col-lg-6 text-center">
+            <div class="col-lg-6 mt-2">
+                <label class=" form-label">Nom de la sortie</label>*
+                <div>
+                    {{ form_widget(form.nom) }}</div>
+                <div class="">{{ form_errors(form.nom) }}</div>
+            </div>
+            <div class="col-lg-6 mt-2">
+                <label class=" form-label">Date et heure de la sortie</label>*
+                <div>
+                    {{ form_widget(form.date_debut) }}</div>
+                <div class="">{{ form_errors(form.date_debut) }}</div>
+            </div>
+            <div class="col-lg-6 mt-2">
+                <label class=" form-label">Date de cloture des inscriptions</label>*
+                <div>
+                    {{ form_widget(form.date_cloture) }}</div>
+                <div class="">{{ form_errors(form.date_cloture) }}</div>
+            </div>
+            <div class="col-lg-6 mt-2">
+                <label class=" form-label">Nombre d'inscription maximum</label>*
+                <div>
+                    {{ form_widget(form.nb_inscription_max) }}</div>
+                <div class="">{{ form_errors(form.nb_inscription_max) }}</div>
+            </div>
+            <div class="col-lg-6 mt-2">
+                <label class=" form-label">Durée de la sortie (en min)</label>*
+                <div>
+                    {{ form_widget(form.duree) }}</div>
+                <div class="">{{ form_errors(form.duree) }}</div>
+            </div>
+            <div class="col-lg-6 mt-2">
+                <label class=" form-label">Description de la sortie</label>*
+                <div>
+                    {{ form_widget(form.description_info) }}</div>
+                <div class="">{{ form_errors(form.description_info) }}</div>
+            </div>
+        </div>
+        <div class="col-lg-6 text-center">
+            <div class="col-lg-6 mt-2">
+                <label class=" form-label">Ville organisatrice</label>
+                <input disabled type="text" class="form-control" value="{{ participant.site.getNomSite() }}">
+            </div>
+            <div class="col-lg-6 mt-2">
+                <label class=" form-label">Ville</label>*
+
+                <div id="villes">
+                    <div>
+                        {{ form_widget(form.ville) }}
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-6 mt-2">
+
+                <label class=" form-label">Lieu</label>*
+                <div>
+                    {{ form_widget(form.lieu) }}
+                </div>
+
+            </div>
+            <div class="col-lg-6 mt-2">
+                <label class=" form-label">Rue :</label>
+                <div id="rue">
+                    <input disabled type="text" class="form-control">
+
+                </div>
+
+            </div>
+            <div class="col-lg-6 mt-2">
+                <label class=" form-label">Code Postal :</label>
+                <div id="code">
+                    <input disabled type="text" class="form-control">
+
+                </div>
+
+            </div>
+            <div class="col-lg-6 mt-2">
+                <label class=" form-label">Latitude :</label>
+                <div id="lat">
+                    <input disabled type="text" class="form-control">
+
+                </div>
+            </div>
+            <div class="col-lg-6 mt-2">
+                <label class=" form-label">Longitude :</label>
+                <div id="lon">
+                    <input disabled type="text" class="form-control">
+
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-lg-3"></div>
+        <div class="col-lg-6 text-center">
+
+            {% if (sorties is empty) %}
+                {% if (app.request.get('_route')=='app_sortie_save') %}
+                    <button class="btn btn-secondary" type="submit">Enregistrer</button>
+                {% endif %}
+            {% endif %}
+            {% if (app.request.get('_route')=='app_admin_sortie_ajout') %}
+                <button class="btn btn-success" type="submit">Publier la sortie</button>
+            {% else %}
+                {% if is_granted('ROLE_ADMIN') %}
+                    <button class="btn btn-warning" type="submit">Modifier</button>
+                {% endif %}
+            {% endif %}
+
+
+            {{ form_end(form) }}
+            {% if is_granted('ROLE_ADMIN') %}
+                <a href="{{ path('app_admin_sortie_liste') }}" class="btn btn-secondary" type="">Retour</a>
+            {% else %}
+                <a href="{{ path('app_sorties') }}" class="btn btn-secondary" type="">Retour</a>
+
+            {% endif %}
+        </div>
+        <div class="col-lg-3"></div>
+
+    </div>
+    <script>
+
+        const ville = document.getElementById("sortie_ville");
+        ville.addEventListener("change", (option) => {
+
+            $.get("../../../api/code/" + option.target.value, function (data) {
+                $("#code").children().replaceWith(data.map(l => `<input type="text" class="form-control" disabled value="${l.code}">`));
+            });
+        })
+
+        const lieu = document.getElementById("sortie_lieu");
+        lieu.addEventListener("change", (option) => {
+            $.get("../../../api/coordonnee/" + option.target.value, function (data) {
+                console.log(data);
+                $("#rue").children().replaceWith(data.map(l => ` <input disabled type="text" class="form-control" value="${l.rue}">`));
+                $("#lat").children().replaceWith(data.map(l => ` <input disabled type="text" class="form-control" value="${l.latitude}">`));
+                $("#lon").children().replaceWith(data.map(l => ` <input disabled type="text" class="form-control" value="${l.longitude}">`));
+
+            });
+        })
+        /* sur changement de la données dans la liste deroulante de ville ...*/
+
+        $(document).on('change', '#sortie_ville', function () {
+
+            /* chargement des lieux de la ville concernée */
+
+            chargerListeLieux();
+
+        })
+
+
+        /* fonction permettant de recuperer les lieux en fonction de la ville selectionnée */
+
+        function chargerListeLieux() {
+
+            $.ajax({
+
+                method: "POST",
+
+                url: "../../../api/lieu", /* appel de la fonction rechercheLieuByVille du controlleur AjaxController*/
+
+                data: {
+
+                    'ville_id': $('#sortie_ville').val() //recupération de la ville dans la data
+
+                }
+
+            }).done(function (response) {
+
+                $('#sortie_lieu').html(''); //initialisation de la liste des lieux
+
+                //chargement des lieux fournis dans la response, dans la liste deroulante
+
+                for (var i = 0; i < response.length; i++) {
+
+                    var lieu = response[i];
+
+                    let option = $('<option>Sélectionner un lieu</option><option value="' + lieu["id"] + '">' + lieu["nom"] + '</option>');
+
+                    $('#sortie_lieu').append(option);
+
+                }
+
+            })
+
+        }
+    </script>
+{% endblock %}

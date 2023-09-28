@@ -1,0 +1,22 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Gestion Profil{% endblock %}
+
+{% block body %}
+    <h1>Modification du mot de passe du Profil</h1>
+    <section class="container-fluid">
+        {{ form_start(form) }}
+        <div class="row mt-2 mb-5">
+            <div class="col-lg-6">  {{ form_row(form.password.first) }}</div>
+            <div class="col-lg-6"> {{ form_row(form.password.second) }}</div>
+
+        </div>
+        <button class="btn btn-success" type="submit">Modifier</button>
+        <a href="{{ path('app_accueil') }}" class="btn btn-primary" type="button">Retour a l'accueil</a>
+
+
+        </div>
+        {{ form_end(form) }}
+
+    </section>
+{% endblock %}

@@ -1,0 +1,18 @@
+.blocBien{
+  width: 18rem;
+  border: 1px solid red;
+
+  &__titre{
+    color: red;
+  }
+
+  &__text{
+    color: #ff413c;
+  }
+}
+
+.blocPage{
+  &__titre {
+    color: green;
+  }
+}

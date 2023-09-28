@@ -1,0 +1,11 @@
+index:
+    path: /
+    controller: App\Controller\SortieController::index
+
+controllers:
+    resource: ../src/Controller/
+    type: attribute
+
+app_logout:
+    path: /logout
+    methods: GET

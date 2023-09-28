@@ -1,0 +1,92 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Accueil{% endblock %}
+
+{% block body %}
+
+    <h1 class="blocPage__titre">Accueil du Site : {{ site.nomSite }}</h1>
+    {% if (sorties is empty) %}
+        <script>alert('Il n\'y a pas de sortie à afficher pour le site {{ site.nomSite }}')</script>
+        <div class="text-center fs-2 text-bg-danger text-white">Il n'y a pas de sortie à afficher pour le site {{ site.nomSite }}</div>
+    {% else %}
+
+        <div class="row ">
+
+            {% for sortie in sorties %}
+                <div class="col-lg-3 mt-3">
+                    <div class="card" style="width: 18rem;">
+                        <div class="card-body">
+                            <h5 class="card-title blocBien__titre">{{ sortie.nom }}</h5>
+                            <p class="card-text">Date de Debut : {{ sortie.dateDebut | date('d/m/Y H:i') }}</p>
+                            <p class="card-text">Etat de la sortie : {{ sortie.getEtat().getLibelle() }}</p>
+
+                            <button type="button" class="btn btn-outline-dark" data-bs-toggle="modal"
+                                    data-bs-target="#modal{{ sortie.id }}">
+                                Voir Plus
+                            </button>
+
+
+                            <div id="modal{{ sortie.id }}" class="modal fade">
+                                <div class="modal-dialog">
+                                    <div class="modal-content">
+
+                                        <div class="modal-header">
+                                            <h1 class="modal-title fs-5" id="modal{{ sortie.id }}">{{ sortie.nom }}</h1>
+                                        </div>
+
+                                        <div class="modal-body">
+                                            <p class="card-text">Durée : {{ sortie.duree }}</p>
+                                            <p class="card-text">Date de Debut
+                                                : {{ sortie.dateCloture() | date('d/m/Y') }}</p>
+                                            <p class="card-text">Nombre d'Inscription Max
+                                                : {{ sortie.nbInscriptionMax }}</p>
+                                            <p class="card-text">Description: {{ sortie.descriptionInfo }}</p>
+                                            {#                                        <p class="card-text">Statut : {{ sortie.getEtat.getLibelle }}</p> #}
+                                        </div>
+
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                                                Fermer
+                                            </button>
+                                            {% if is_granted('ROLE_USER') %}
+                                                {% if (sortie.participants is not empty) %}
+                                                    {% for participant in sortie.participants %}
+
+
+                                                        {% if  participant.id == app.user.id %}
+                                                            {% set userFound = true %}
+                                                        {% endif %}
+
+                                                    {% endfor %}
+                                                {% else %}
+                                                    {% set userFound = false %}
+
+                                                {% endif %}
+
+                                                {% if userFound == true %}
+
+                                                    <a type="button" class="btn btn-danger"
+                                                       href="{{ path('app_desisterSortie', {id:sortie.id}) }}">Se
+                                                        désister</a>
+                                                {% endif %}
+
+                                                {% if not userFound %}
+                                                    {% if sortie.etat.libelle == "Ouverte" %}
+                                                    <a type="button" class="btn btn-primary"
+                                                       href="{{ path('app_inscriptionSortie', {id:sortie.id}) }}">S'inscrire</a>
+                                                        {% endif %}
+                                                {% endif %}
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+
+        </div>
+    {% endif %}
+{% endblock %}

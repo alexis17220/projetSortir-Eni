@@ -1,0 +1,146 @@
+{% extends 'base.html.twig' %}
+{% block title %}Sortie.com!{% endblock %}
+
+{% block body %}
+    <main class="container-fluid">
+
+        <div class="row">
+            <div class="col-lg-12 text-center fs-2">Afficher une Sortie</div>
+            <div class="col-lg-12">
+                <div class="row">
+                    <div class="col-lg-6 text-center">
+                        <div class="col-lg-6 mt-5">
+                            Nom de la sortie : {{ sorties.nom }}
+
+
+                        </div>
+                        <div class="col-lg-6 mt-5">
+                            Date et heure de la sortie : {{ sorties.dateDebut| date('d/m/Y H:i:s') }}
+
+                        </div>
+                        <div class="col-lg-6 mt-5">
+                            Date de cloture des inscriptions : {{ sorties.dateDebut| date('d/m/Y') }}
+
+                        </div>
+                        <div class="col-lg-6 mt-5">
+                            Nombre de place : {{ sorties.nbInscriptionMax }}
+
+                        </div>
+                        <div class="col-lg-6 mt-5">
+                            Durée de la sortie : {{ sorties.duree }} minutes
+
+                        </div>
+                        <div class="col-lg-6 mt-5">
+                            Description et info de la sortie : {{ sorties.descriptionInfo }}
+
+                        </div>
+                    </div>
+                    <div class="col-lg-6 text-center">
+                        <div class="col-lg-6 mt-5">
+                            Ville organisatrice : {{ sorties.getSite().getNomSite() }}
+                        </div>
+                        <div class="col-lg-6 mt-5">
+                            Ville : {{ sorties.getLieu().getVille().getNomVille() }}
+                        </div>
+                        <div class="col-lg-6 mt-5">
+                            Lieu : {{ sorties.getLieu().getNomLieu() }}
+                        </div>
+                        <div class="col-lg-6 mt-5">
+                            Rue : {{ sorties.getLieu().getRue() }}
+                        </div>
+                        <div class="col-lg-6 mt-5">
+                            Code Postal : {{ sorties.getLieu().getVille.getCodePostal() }}
+                        </div>
+                        <div class="col-lg-6 mt-5">
+                            Latitude : {{ sorties.getLieu().getLatitude() }}
+                        </div>
+                        <div class="col-lg-6 mt-5 mb-3">
+                            Longitude : {{ sorties.getLieu().getLongitude() }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-lg-4">
+                <div class="text-center fs-2">Liste des participants inscrits</div>
+
+                {% if (  sorties.getParticipants() is empty) %}
+                    <p>Il n'y a point de participant inscrits</p>
+                {% else %}
+                    <table id="example" class="table table-striped border-2">
+                        <thead>
+                        <tr>
+
+                            <th scope="col">Pseudo</th>
+                            <th scope="col">Nom</th>
+
+                        </tr>
+                        </thead>
+                        <tbody>
+
+                        {% for sortie in sorties.getParticipants() %}
+                            <tr>
+                                <td>{{ sortie.pseudo }}</td>
+                                <td>{{ sortie.nom }}</td>
+
+                            </tr>
+
+
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                {% endif %}
+            </div>
+            <div class="col-lg-4 text-center">
+                {% if (sorties.participants is not empty) %}
+                    {#                                                    {% set userFound = false %} #}
+                    {% for participant in sorties.participants %}
+
+
+                        {% if  participant.id == app.user.id %}
+                            {% set userFound = true %}
+                        {% endif %}
+
+                    {% endfor %}
+                {% else %}
+                    {% set userFound = false %}
+
+                {% endif %}
+                {% if is_granted('ROLE_USER') %}
+                    {% if userFound == true %}
+
+                        <a type="button" class="btn btn-danger"
+                           href="{{ path('app_desisterSortie', {id:sorties.id}) }}">Se
+                            désister</a>
+                    {% endif %}
+
+                    {% if not userFound %}
+                        {% if sorties.etat.libelle == "Ouverte" %}
+
+                            <a type="button" class="btn btn-primary"
+                               href="{{ path('app_inscriptionSortie', {id:sorties.id}) }}">S'inscrire</a>
+                        {% endif %}
+                    {% endif %}
+                {% endif %}
+                <a type="button" class="btn btn-danger"
+                   href="{{ path('app_sorties_demande_annulation', {id:sorties.id}) }}">Annuler la sortie</a>
+            </div>
+            <div class="col-lg-4">
+                {% if is_granted('ROLE_ADMIN') %}
+                    <a href="{{ path('app_admin_sortie_liste') }}" class="btn btn-secondary" type="">Retour</a>
+                {% else %}
+                    <a href="{{ path('app_sorties') }}" class="btn btn-secondary" type="">Retour</a>
+
+                {% endif %}
+            </div>
+        </div>
+    </main>
+    <script>
+        $(document).ready(function () {
+            $('#example').DataTable({
+                pagingType: 'full_numbers',
+            });
+        });
+    </script>
+{% endblock %}

@@ -1,0 +1,62 @@
+{% extends 'base.html.twig' %}
+{% block title %}Sortie.com!{% endblock %}
+
+{% block body %}
+    <main class="container-fluid">
+
+        <div class="row">
+            <div class="col-lg-12 text-center fs-2">Annuler une Sortie</div>
+            <div class="row">
+                <div class="col-lg-4 text-center"></div>
+                <div class="col-lg-4">
+                    <div class="row">
+                        <form method="post" action="{{ path('app_annulationSortie', {id:sorties.id}) }}">
+                            <div class=" mt-5">
+                                Nom de la sortie : {{ sorties.nom }}
+                            </div>
+                            <div class="mt-5">
+                                Date et heure de la sortie : {{ sorties.dateDebut| date('d/m/Y H:i:s') }}
+                            </div>
+                            <div class="mt-5">
+                                Description et info de la sortie : {{ sorties.descriptionInfo }}
+                            </div>
+                            <div class="mt-5">
+                                Ville organisatrice : {{ sorties.getSite().getNomSite() }}
+                            </div>
+                            <div class=" mt-5">
+                                Lieu
+                                :{{ sorties.getLieu().getRue() }} {{ sorties.getLieu().getVille.getCodePostal() }} {{ sorties.getLieu().getVille().getNomVille() }}
+                            </div>
+                            <div class="mt-5 mb-2">
+                                <label class="form-label">Motif d'annulation</label>*
+                                <textarea id="sortie_motif" name="motif" class="form-control"
+                                          required></textarea>
+                            </div>
+                            <div class="col-lg-6 text-center">
+                                <button
+                                   onclick="return confirm('Etes vous sur d\'annuler la sortie {{ sorties.nom }} !')"
+                                   type="submit" class="btn btn-danger">Annulation</button>
+                            </div>
+                            <div class="col-lg-6 text-center">
+                                {% if is_granted('ROLE_ADMIN') %}
+                                    <a href="{{ path('app_admin_sortie_liste') }}" class="btn btn-secondary"
+                                       type="">Retour</a>
+                                {% else %}
+                                    <a href="{{ path('app_sorties') }}" class="btn btn-secondary" type="">Retour</a>
+
+                                {% endif %}
+                            </div>
+                        </form>
+                    </div>
+                </div>
+                <div class="col-lg-4"></div>
+            </div>
+
+        </div>
+
+
+        <div class="col-lg-4"></div>
+        </div>
+    </main>
+
+{% endblock %}

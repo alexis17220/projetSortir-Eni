@@ -1,0 +1,23 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Profil{% endblock %}
+
+{% block body %}
+    <h2 class="text-center">Profil de {{ participant.nom }}</h2>
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-lg-4">Photo de profil :
+                <img src="{{ asset('uploads/photo/' ~ participant.urlphoto) }}"
+                     class="card-img-top w-25"></div>
+            <div class="col-lg-4">Pseudo: <strong class="fs-3">{{ participant.pseudo }}</strong></div>
+            <div class="col-lg-4">Nom : {{ participant.nom }}</div>
+            <div class="col-lg-4">Prénom : {{ participant.prenom }}</div>
+            <div class="col-lg-4">Téléphone : {{ participant.telephone }}</div>
+            <div class="col-lg-4">Email : {{ participant.email }}</div>
+            <div class="col-lg-12 text-center">
+                <a href="{{ path('app_gerer_profil', {id:participant.id}) }}" class="btn btn-warning text-center">Modifier</a>
+            </div>
+        </div>
+
+    </div>
+{% endblock %}

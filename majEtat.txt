@@ -1,0 +1,76 @@
+/*
+etat=1 'créée' : lors de la cretaion de la sortie => manuel
+etat=2 'ouverte' : lorsque l'évènement publier a été activé => manuel
+etat=3 'cloturée' : nbInscrits=nbMaxInscrit OU date > dateClôtureInsription => automatique
+etat=4 'en cours' : date=dateDebutSortie => automatique
+etat=5 'terminée' : date=dateFinSortie (dateDebutSortie+durée) =>automatique
+*/
+
+/* LE PROGRAMME */
+--creation de la table temporaire : regroupant le nombre max d'inscrit et le nombre d'inscrit
+
+--------------------------------------------------------------------
+CREATE TABLE T1 (
+	id INT,
+	nb_ins_max INT,
+	nb_ins INT
+);
+--------------------------------------------------------------------
+
+--creation de la procedure stockée : majEtat3PourMaxInscrit
+
+BEGIN
+DELETE FROM T1;
+
+INSERT INTO T1 (id, nb_ins_max, nb_ins)
+(SELECT p.sortie_id, s.nb_inscriptions_max, COUNT(p.sortie_id) 
+FROM participant_sortie p 
+INNER JOIN sortie s ON s.id = p.sortie_id 
+GROUP BY p.sortie_id, s.nb_inscriptions_max);
+
+--maj etat=3 pour nbInscrits=nbMaxInscrit
+UPDATE sortie set etat_id = 3
+WHERE id IN (SELECT id FROM T1 WHERE nb_ins_max = nb_ins)
+AND (etat_id = 1 OR etat_id = 2);
+
+end;
+
+--creation de la procedure stockée : majEtat3PourDateAtteinte
+
+BEGIN
+--maj etat=3 pour date > dateClôtureInsription
+UPDATE sorties set etat_id = 3
+WHERE date_limite_inscription < NOW()
+and (etat_id = 1 OR etat_id = 2);
+END;
+
+--creation de la procédure stockée : majEtat4EnCours
+BEGIN
+UPDATE sorties set etat_id = 4
+WHERE date_debut = NOW()
+and (etat_id = 1 or etat_id = 2 or etat_id = 3);
+END;
+
+
+--creation de la procedure stockée : majEtat5Terminee
+
+BEGIN
+UPDATE sorties set etat_id = 5
+WHERE DATE_ADD(date_debut,INTERVAL duree DAY) < NOW() and
+(etat_id = 1 or etat_id = 2 or etat_id = 3 or etat_id = 4);
+END;
+
+
+
+
+--creation de la procedure majEtat
+
+BEGIN
+CALL majEtat3PourMaxInscrit();
+CALL majEtat3PourDateAtteinte();
+CALL majEtat4EnCours();
+CALL majEtat5Terminee();
+END;
+
+POUR CREER L'EVENEMENT => VOIR ARCHIVER LES SORTIES (2007)
+

@@ -1,0 +1,67 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Sortir.com!{% endblock %}
+
+{% block body %}
+    <main>
+        <section class="container-fluid" style="margin-bottom: 10px;">
+            <a href="{{ path('app_admin_sortie_ajout') }}" type="button" class="btn btn-success">Ajouter une Sortie</a>
+        </section>
+
+        <div class="container-fluid">
+            {% if (sortie is empty) %}
+                <p>Il n'y a point de sortie à afficher</p>
+            {% else %}
+
+                <table id="exemple" class="table table-dark table-hover">
+                    <thead>
+                    <tr>
+
+                        <th scope="col">Nom de la sortie</th>
+                        <th scope="col">Date de la sortie</th>
+                        <th scope="col">Cloture</th>
+                        <th scope="col">Inscrit/place</th>
+                        <th scope="col">Etat</th>
+                        <th scope="col">Organisateur</th>
+
+                        <th colspan="3" class="text-center">Actions</th>
+
+                    </tr>
+                    </thead>
+                    <tbody>
+
+                    {% for sorties in sortie %}
+                        <tr>
+                            <td>{{ sorties.nom }}</td>
+                            <td>{{ sorties.dateDebut|date('d/m/Y H:i:s') }} </td>
+                            <td>{{ sorties.dateCloture|date('d/m/Y') }}</td>
+                            <td>/{{ sorties.NbInscriptionMax }}</td>
+                            <td>{{ sorties.etat.Libelle }}</td>
+                            <td>{{ sorties.participant.nom }}</td>
+                            <td>
+                                <a type="button" href="{{ path('app_admin_sortie_modifier', {id:sorties.id}) }}"
+                                   class="btn btn-warning text-center btn-sm">Modifier</a>
+                                <a type="button" class="btn btn-primary"
+                                   href="{{ path('app_sorties_info', {id:sorties.id}) }}">Plus d'information</a>
+                                <a type="button" class="btn btn-danger" href="{{ path('app_sorties_demande_annulation', {id:sorties.id}) }}">Annuler la sortie</a>
+
+                            </td>
+
+
+                        </tr>
+
+
+                    {% endfor %}
+                    </tbody>
+                </table>
+            {% endif %}
+        </div>
+    </main>
+    <script>
+        $(document).ready(function () {
+            $('#example').DataTable({
+                pagingType: 'full_numbers',
+            });
+        });
+    </script>
+{% endblock %}

@@ -1,0 +1,205 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Sorties{% endblock %}
+
+{% block body %}
+    <main>
+        <h2 id="titreListe">Liste des Sorties</h2>
+        <a type="button" class="btn btn-primary text-center" href="{{ path('app_admin_sortie_ajout') }}">Ajouter une
+            sortie</a>
+        <div class="row justify-content-center m-auto">
+            <div class="col-6">
+                {#    Filtres pas opérationnel #}
+                <h3>Filtrer les sorties</h3>
+
+                <form action="{{ path('sortie_liste') }}" method="get" class="row">
+
+                    <div class="col-sm-6">
+                        <input type="text" class="form-control mb-3" placeholder="Rechercher une sortie par mot-clé"
+                               name="recherche_terme" id="recherche_terme"
+                               value="{{ app.request.get('recherche_terme') }}">
+
+                        <select class="custom-select mb-3" name="recherche_site"
+                                aria-label="Example select with button addon">
+                            <option selected>Choisir un site</option>
+                            {% for site in sites %}
+                                <option value="{{ site.id }}" {{ (site.id in app.request.get('recherche_site')) ? 'selected' : '' }}>{{ site.nomSite }}</option>
+                            {% endfor %}
+                        </select>
+                        <select class="custom-select mb-3" name="recherche_etat"
+                                aria-label="Example select with button addon">
+                            <option selected>Choisir le statut</option>
+                            {% for etat in etats %}
+                                <option value="{{ etat.id }}" {{ (etat.id in app.request.get('recherche_etat')) ? 'selected' : '' }}>{{ etat.libelle }}</option>
+                            {% endfor %}
+                        </select>
+
+                        <div class="mb-3">
+                            <label for="debut">Date de début</label>
+                            <input class="rounded form-control" type="date" id="debut" name="date_debut"
+                                   value="{{ app.request.get('date_debut') }}">
+                            <label for="fin">Date de fin</label>
+                            <input class="rounded form-control" type="date" id="fin" name="date_fin"
+                                   value="{{ app.request.get('date_fin') }}">
+                        </div>
+                    </div>
+
+                    <div class="col-xs-12 col-sm-6">
+                        <div class="row d-flex flex-column ml-1 col-xs-12 d-inline">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="cb_organisateur"
+                                       value="{{ app.user.id }}" {% if app.request.get('cb_organisateur') %} checked {% endif %}>
+                                <label class="form-check-label">Sorties dont je suis l'organisateur.trice</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="cb_inscrit"
+                                       value="{{ app.user.id }}" {% if app.request.get('cb_inscrit') %} checked {% endif %}>
+                                <label class="form-check-label">Sorties auxquelles je suis inscrit.e</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="cb_non_inscrit"
+                                       value="{{ app.user.id }}" {% if app.request.get('cb_non_inscrit') %} checked {% endif %}>
+                                <label class="form-check-label">Sorties auxquelles je ne suis pas inscrit.e</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox"
+                                       name="cb_passee" {% if app.request.get('cb_passee') %} checked {% endif %}>
+                                <label class="form-check-label">Sorties passées</label>
+                            </div>
+                        </div>
+
+                        <div class="row d-flex text-center ">
+                            <div class="col">
+                                <input type="submit" class="btn btn-primary mr-1 mt-5 mb-2" value="Rechercher"
+                                       id="btnRechercher" name="btnRechercher">
+                                <a href="{{ path('sortie_liste') }}" class="btn btn-primary ml-1 mt-5 mb-2">Réinitialiser</a>
+                            </div>
+                        </div>
+
+                    </div>
+                </form>
+            </div>
+        </div>
+
+
+        <div id="result" class="row justify-content-center m-auto">
+            <div class="col-lg-12 row">
+                {% for sortie in sorties %}
+                    <div class="col-lg-3 mt-3">
+                        <div class="card" style="width: 18rem;">
+                            <div class="card-body">
+                                <h5 class="card-title blocBien__titre">{{ sortie.nom }}</h5>
+                                <p class="card-text">Date de Debut : {{ sortie.dateDebut | date('d/m/Y') }}</p>
+                                <p class="card-text">Clôture : {{ sortie.dateCloture | date('d/m/Y') }}</p>
+                                <p class="card-text">Statut : {{ sortie.getEtat.getLibelle }}</p>
+
+                                <button type="button" class="btn btn-outline-dark" data-bs-toggle="modal"
+                                        data-bs-target="#modal{{ sortie.id }}">
+                                    Voir Plus
+                                </button>
+
+
+                                <div id="modal{{ sortie.id }}" class="modal fade">
+                                    <div class="modal-dialog">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <h1 class="modal-title fs-5"
+                                                    id="modal{{ sortie.id }}">{{ sortie.nom }}</h1>
+                                            </div>
+                                            <div class="modal-body">
+                                                <p class="card-text">Durée : {{ sortie.duree }}</p>
+                                                <p class="card-text">Nombre d'Inscription Max
+                                                    : {{ sortie.nbInscriptionMax }}</p>
+                                                <p class="card-text">Description: {{ sortie.descriptionInfo }}</p>
+                                            </div>
+
+                                            <div class="modal-footer">
+                                                <button type="button" class="btn btn-secondary"
+                                                        data-bs-dismiss="modal">Fermer
+
+                                                </button>
+                                                <a type="button" class="btn btn-info"
+                                                   href="{{ path('app_sorties_info', {id:sortie.id}) }}">Plus
+                                                    d'information</a>
+
+
+                                                {% if (sortie.participants is not empty) %}
+                                                    {#                                                    {% set userFound = false %} #}
+                                                    {% for participant in sortie.participants %}
+
+
+                                                        {% if  participant.id == app.user.id %}
+                                                            {% set userFound = true %}
+                                                        {% endif %}
+
+                                                    {% endfor %}
+                                                {% else %}
+                                                    {% set userFound = false %}
+
+                                                {% endif %}
+                                                {% if is_granted('ROLE_USER') %}
+                                                    {% if userFound == true %}
+
+                                                        <a type="button" class="btn btn-danger"
+                                                           href="{{ path('app_desisterSortie', {id:sortie.id}) }}">Se
+                                                            désister</a>
+                                                    {% endif %}
+
+                                                    {% if not userFound %}
+                                                        {% if sortie.etat.libelle == "Ouverte" %}
+
+                                                            <a type="button" class="btn btn-primary"
+                                                               href="{{ path('app_inscriptionSortie', {id:sortie.id}) }}">S'inscrire</a>
+                                                        {% endif %}
+                                                    {% endif %}
+                                                {% endif %}
+
+                                                {#                                                {% if sortie.getEtat.getLibelle == 'Crée' %} #}
+                                                {#                                                    <a href="{{ path('app_admin_sortie_modifier', {id:sortie.id}) }}" #}
+                                                {#                                                       class="btn btn-warning" type="button">Modifier</a> #}
+
+                                                {#                                                {% endif %} #}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+
+    </main>
+{% endblock %}
+{% block script %}
+    <script type='text/javascript'>
+
+
+        // $( document ).ready(function() {
+        //     const site = document.getElementById("site_drop");
+        //     site.addEventListener("change", (option) => {
+        //     console.log('Jquery Working');
+        //     $.get( "/api/sortielist/"+option.value, function( data ) {
+        //         console.log(data);
+        //     });})
+        // });
+
+        const site = document.getElementById("site_drop");
+        site.addEventListener("change", (option) => {
+            fetch('/api/sortielist/' + option.target.value)
+                .then((response) => {
+                    response.text().then((data) => {
+                        console.log(data);
+                        //Mise en pages des données à l'actualisation
+                        result = document.getElementById("result")
+                        result.innerHTML = "";
+                        result.innerHTML = data
+
+
+                    })
+                })
+        })
+
+    </script>
+{% endblock %}

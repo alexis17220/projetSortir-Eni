@@ -1,0 +1,43 @@
+{% for sortie in sorties %}
+
+    <div class="col-lg-3 mt-3">
+        <div class="card" style="width: 18rem;">
+            <div class="card-body">
+                <h5 class="card-title blocBien__titre">{{ sortie.nom }}</h5>
+                <p class="card-text">Date de Debut : {{ sortie.dateDebut | date('d/m/Y') }}</p>
+                <p class="card-text">Clôture : {{ sortie.dateCloture | date('d/m/Y') }}</p>
+                <p class="card-text">Statut : {{ sortie.getEtat.getLibelle }}</p>
+                <button type="button" class="btn btn-outline-dark" data-toggle="modal"
+                        data-target="#modal{{ sortie.id }}">
+                    Voir Plus
+                </button>
+
+
+                <div id="modal{{ sortie.id }}" class="modal fade">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+
+                            <div class="modal-header">
+                                <h1 class="modal-title fs-5" id="modal{{ sortie.id }}">{{ sortie.nom }}</h1>
+                            </div>
+
+                            <div class="modal-body">
+                                <p class="card-text">Durée : {{ sortie.duree }}</p>
+                                <p class="card-text">Nombre d'Inscription Max : {{ sortie.nbInscriptionMax }}</p>
+                                <p class="card-text">Description: {{ sortie.descriptionInfo }}</p>
+                            </div>
+
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fermer</button>
+                                <button type="button" class="btn btn-primary">S'inscrire'</button>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+{% endfor %}

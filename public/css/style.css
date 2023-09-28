@@ -1,0 +1,20 @@
+.blocBien {
+  width: 18rem;
+  border: 1px solid red;
+}
+.blocBien__titre {
+  color: red;
+}
+.blocBien__text {
+  color: #ff413c;
+}
+
+.blocPage__titre {
+  color: green;
+}
+
+#titreListe{
+  margin-top:150px;
+}
+
+/*# sourceMappingURL=style.css.map */
